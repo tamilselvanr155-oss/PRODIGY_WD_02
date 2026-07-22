@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Timekeeping & Analytics Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Futuristic Neon Theme (Default) */
+            --bg-primary: #040814;
+            --bg-surface: rgba(13, 20, 42, 0.65);
+            --bg-glass-card: rgba(255, 255, 255, 0.03);
+            --border-color: rgba(99, 102, 241, 0.2);
+            --border-hover: rgba(168, 85, 247, 0.5);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --color-accent: #a855f7;
+            --color-accent-glow: rgba(168, 85, 247, 0.4);
+            --color-secondary-accent: #06b6d4;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ff2a6d;
+            --ambient-1: radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.25) 0%, transparent 40%);
+            --ambient-2: radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.2) 0%, transparent 40%);
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-display: 'Orbitron', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        /* Deep Space Aurora Theme */
+        body.theme-aurora {
+            --bg-primary: #020c1b;
+            --bg-surface: rgba(10, 31, 58, 0.65);
+            --border-color: rgba(16, 185, 129, 0.25);
+            --border-hover: rgba(52, 211, 153, 0.6);
+            --text-primary: #f0fdf4;
+            --text-secondary: #71717a;
+            --color-accent: #10b981;
+            --color-accent-glow: rgba(16, 185, 129, 0.4);
+            --color-secondary-accent: #3b82f6;
+            --ambient-1: radial-gradient(circle at 20% 10%, rgba(16, 185, 129, 0.25) 0%, transparent 45%);
+            --ambient-2: radial-gradient(circle at 80% 85%, rgba(59, 130, 246, 0.2) 0%, transparent 45%);
+        }
+
+        /* Arcade Synthwave Theme */
+        body.theme-synthwave {
+            --bg-primary: #120024;
+            --bg-surface: rgba(36, 9, 63, 0.65);
+            --border-color: rgba(244, 63, 94, 0.3);
+            --border-hover: rgba(251, 146, 60, 0.6);
+            --text-primary: #fff1f2;
+            --text-secondary: #fda4af;
+            --color-accent: #ff007f;
+            --color-accent-glow: rgba(255, 0, 127, 0.5);
+            --color-secondary-accent: #f97316;
+            --ambient-1: radial-gradient(circle at 50% 0%, rgba(255, 0, 127, 0.3) 0%, transparent 50%);
+            --ambient-2: radial-gradient(circle at 80% 90%, rgba(249, 115, 22, 0.25) 0%, transparent 45%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image: var(--ambient-1), var(--ambient-2);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 24px;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Ambient Animated Grid Lines overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .workspace-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 32px;
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 1024px) {
+            .workspace-grid {
+                grid-template-columns: 1.25fr 0.75fr;
+            }
+        }
+
+        .app-panel, .stats-panel {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 28px;
+            padding: 36px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .app-panel:hover, .stats-panel:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 30px var(--color-accent-glow);
+        }
+
+        .config-block {
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 16px 20px;
+            margin-bottom: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .config-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .config-group select {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            outline: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .config-group select:focus, .config-group select:hover {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 12px var(--color-accent-glow);
+        }
+
+        .tab-navigation {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px;
+            border-radius: 18px;
+            margin-bottom: 28px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 14px 0;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--color-accent), var(--color-secondary-accent));
+            color: #ffffff;
+            box-shadow: 0 4px 20px var(--color-accent-glow);
+            text-shadow: 0 0 8px rgba(0,0,0,0.4);
+        }
+
+        .tab-content {
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 380px;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+        }
+
+        .status-badge {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            font-weight: 700;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .status-badge.running {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--color-success);
+            border-color: var(--color-success);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+            animation: pulseGlow 2s infinite;
+        }
+
+        .status-badge.paused {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--color-warning);
+            border-color: var(--color-warning);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .display-container {
+            padding: 30px 0;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            background: radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%);
+            border-radius: 20px;
+            margin: 10px 0;
+        }
+
+        .time-display {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 4.2rem;
+            color: var(--text-primary);
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px var(--color-accent-glow);
+            transition: all 0.3s ease;
+        }
+
+        .time-display span.ms {
+            font-size: 2.2rem;
+            color: var(--color-secondary-accent);
+            font-weight: 700;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-top: auto;
+        }
+
+        button.action-btn {
+            font-family: var(--font-main);
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 16px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            cursor: pointer;
+            background: var(--bg-glass-card);
+            color: var(--text-primary);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(5px);
+        }
+
+        button.action-btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border-color: var(--color-accent);
+        }
+
+        button.action-btn:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
+        }
+
+        #startBtn, #timerStartBtn {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(5, 150, 105, 0.9));
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        #startBtn:hover:not(:disabled), #timerStartBtn:hover:not(:disabled) {
+            box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5);
+        }
+
+        #pauseBtn, #timerPauseBtn {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.8), rgba(217, 119, 6, 0.9));
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        #pauseBtn:hover:not(:disabled), #timerPauseBtn:hover:not(:disabled) {
+            box-shadow: 0 6px 25px rgba(245, 158, 11, 0.5);
+        }
+
+        #resetBtn, #timerResetBtn {
+            background: rgba(255, 42, 109, 0.1);
+            border-color: rgba(255, 42, 109, 0.3);
+            color: var(--color-danger);
+        }
+
+        #resetBtn:hover:not(:disabled), #timerResetBtn:hover:not(:disabled) {
+            background: rgba(255, 42, 109, 0.25);
+            border-color: var(--color-danger);
+            box-shadow: 0 0 20px rgba(255, 42, 109, 0.4);
+        }
+
+        button:disabled {
+            background: rgba(255, 255, 255, 0.02) !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+            color: rgba(255, 255, 255, 0.2) !important;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .timer-setup {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 30px 0;
+            flex-grow: 1;
+        }
+
+        .timer-setup input {
+            width: 80px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 12px 6px;
+            border-radius: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .timer-setup input:focus {
+            border-color: var(--color-accent);
+            box-shadow: 0 0 20px var(--color-accent-glow);
+        }
+
+        .timer-label {
+            color: var(--text-secondary);
+            font-weight: 800;
+            font-size: 1rem;
+            font-family: var(--font-display);
+        }
+
+        .lap-module {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            margin-top: 24px;
+            display: none;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .lap-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .lap-table th {
+            font-family: var(--font-display);
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            padding-bottom: 12px;
+            text-align: left;
+            letter-spacing: 1.5px;
+        }
+
+        .lap-table-wrapper {
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .lap-table td {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-family: var(--font-mono);
+        }
+
+        .row-split {
+            color: var(--color-secondary-accent);
+        }
+
+        .stats-panel h3 {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--bg-glass-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--color-secondary-accent);
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-family: var(--font-mono);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .session-log {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .session-log-header {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .log-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            border: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 14px;
+            padding: 8px 14px;
+            flex-grow: 1;
+        }
+
+        .log-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+        }
+
+        .log-item span:first-child {
+            color: var(--text-primary);
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .clear-stats-btn {
+            background: transparent;
+            border: 1px solid var(--color-danger);
+            color: var(--color-danger);
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            align-self: flex-start;
+            transition: all 0.2s ease;
+        }
+
+        .clear-stats-btn:hover {
+            background: rgba(255, 42, 109, 0.15);
+            box-shadow: 0 0 15px rgba(255, 42, 109, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* Scrollbars */
+        .log-list::-webkit-scrollbar, .lap-table-wrapper::-webkit-scrollbar {
+            width: 4px;
+        }
+        .log-list::-webkit-scrollbar-thumb, .lap-table-wrapper::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="workspace-grid">
+        <div class="app-panel">
+            <div class="config-block">
+                <div class="config-group">
+                    <label for="themeSelect">Engine Theme</label>
+                    <select id="themeSelect" onchange="applyTheme(this.value)">
+                        <option value="default">Cyber Neon</option>
+                        <option value="theme-aurora">Deep Space</option>
+                        <option value="theme-synthwave">Arcade Synth</option>
+                    </select>
+                </div>
+                <div class="config-group">
+                    <label for="precisionSelect">Precision</label>
+                    <select id="precisionSelect" onchange="togglePrecision(this.value)">
+                        <option value="centiseconds">Milliseconds (.00)</option>
+                        <option value="seconds">Seconds Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <nav class="tab-navigation">
+                <button class="tab-btn active" onclick="switchTab('stopwatch-tab', event)">Stopwatch</button>
+                <button class="tab-btn" onclick="switchTab('timer-tab', event)">Countdown</button>
+            </nav>
+
+            <div id="stopwatch-tab" class="tab-content active">
+                <div class="panel-header">
+                    <h2>Stopwatch</h2>
+                    <div class="status-badge" id="swStatus">Ready</div>
+                </div>
+                <div class="display-container">
+                    <div class="time-display" id="swDisplay">00:00:00<span class="ms">.00</span></div>
+                </div>
+                <div class="action-grid">
+                    <button class="action-btn" id="startBtn">Start</button>
+                    <button class="action-btn" id="pauseBtn" disabled>Pause</button>
+                    <button class="action-btn" id="lapBtn" disabled>Lap</button>
+                    <button class="action-btn" id="resetBtn">Reset</button>
+                </div>
+                <div class="lap-module" id="lapModule">
+                    <table class="lap-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">Lap</th>
+                                <th style="width: 40%;">Split Delta</th>
+                                <th style="width: 40%; text-align: right;">Total Duration</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <div class="lap-table-wrapper">
+                        <table class="lap-table" id="lapTableBody"></table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="timer-tab" class="tab-content">
+                <div class="panel-header">
+                    <h2>Countdown</h2>
+                    <div class="status-badge" id="timerStatus">Set Time</div>
+                </div>
+                <div id="timerInputContainer" class="timer-setup">
+                    <input type="number" id="inputHours" min="0" max="23" value="0">
+                    <span class="timer-label">H</span>
+                    <input type="number" id="inputMinutes" min="0" max="59" value="5">
+                    <span class="timer-label">M</span>
+                    <input type="number" id="inputSeconds" min="0" max="59" value="0">
+                    <span class="timer-label">S</span>
+                </div>
+                <div id="timerDisplayContainer" class="display-container" style="display: none;">
+                    <div class="time-display" id="timerDisplay">00:05:00</div>
+                </div>
+                <div class="action-grid">
+                    <button class="action-btn" id="timerStartBtn">Start</button>
+                    <button class="action-btn" id="timerPauseBtn" disabled>Pause</button>
+                    <button class="action-btn" style="visibility: hidden;"></button>
+                    <button class="action-btn" id="timerResetBtn">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <div>
+                <h3>Telemetry & Analytics</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-label">SW Runtime</span>
+                        <div class="stat-value" id="statSwTime">0s</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Timer Runtime</span>
+                        <div class="stat-value" id="statTimerTime">0s</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Laps Marked</span>
+                        <div class="stat-value" id="statTotalLaps">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Run Cycles</span>
+                        <div class="stat-value" id="statTotalCycles">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="session-log">
+                <div class="session-log-header">
+                    <span>Recent Activity Log</span>
+                    <span id="logCount">0 records</span>
+                </div>
+                <ul class="log-list" id="logList"></ul>
+            </div>
+            <button class="clear-stats-btn" onclick="clearTelemetry()">Flush Metrics</button>
+        </div>
+    </div>
+
+    <script>
+        let activePrecision = 'centiseconds';
+        let stats = { swMs: 0, timerMs: 0, laps: 0, cycles: 0, log: [] };
+
+        if(localStorage.getItem('timeSuite_Stats')) {
+            stats = JSON.parse(localStorage.getItem('timeSuite_Stats'));
+        }
+        if(localStorage.getItem('timeSuite_Theme')) {
+            const savedTheme = localStorage.getItem('timeSuite_Theme');
+            document.getElementById('themeSelect').value = savedTheme;
+            applyTheme(savedTheme);
+        }
+
+        function applyTheme(className) {
+            document.body.className = '';
+            if (className !== 'default') document.body.classList.add(className);
+            localStorage.setItem('timeSuite_Theme', className);
+        }
+
+        function togglePrecision(mode) {
+            activePrecision = mode;
+            if (swInterval === null) updateSwDisplay(swElapsedTime);
+        }
+
+        function commitStats() {
+            localStorage.setItem('timeSuite_Stats', JSON.stringify(stats));
+            renderStatsUI();
+        }
+
+        function renderStatsUI() {
+            document.getElementById('statSwTime').textContent = Math.floor(stats.swMs / 1000) + 's';
+            document.getElementById('statTimerTime').textContent = Math.floor(stats.timerMs / 1000) + 's';
+            document.getElementById('statTotalLaps').textContent = stats.laps;
+            document.getElementById('statTotalCycles').textContent = stats.cycles;
+            document.getElementById('logCount').textContent = `${stats.log.length} records`;
+
+            const list = document.getElementById('logList');
+            list.innerHTML = '';
+            stats.log.slice().reverse().forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'log-item';
+                li.innerHTML = `<span>${item.type}</span> <span>${item.duration}</span>`;
+                list.appendChild(li);
+            });
+        }
+
+        function clearTelemetry() {
+            if(confirm("Flush all usage metrics and session logs?")) {
+                stats = { swMs: 0, timerMs: 0, laps: 0, cycles: 0, log: [] };
+                commitStats();
+            }
+        }
+
+        function appendLogRecord(type, durationMs) {
+            let secs = Math.floor(durationMs / 1000);
+            let formatted = secs >= 60 ? `${Math.floor(secs/60)}m ${secs%60}s` : `${secs}s`;
+            if(durationMs === 0) return;
+            
+            stats.log.push({ type: type, duration: formatted });
+            if(stats.log.length > 30) stats.log.shift();
+            commitStats();
+        }
+
+        function switchTab(tabId, evt) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add('active');
+            }
+        }
+
+        const swDisplay = document.getElementById('swDisplay');
+        const swStatus = document.getElementById('swStatus');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const lapBtn = document.getElementById('lapBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const lapModule = document.getElementById('lapModule');
+        const lapTableBody = document.getElementById('lapTableBody');
+
+        let swStartTime = 0, swElapsedTime = 0, lastLapTime = 0, swCount = 0, swSessionAccumulator = 0;
+        let swInterval = null;
+
+        function formatTimeStrings(ms) {
+            let hours = Math.floor(ms / 3600000);
+            let minutes = Math.floor((ms % 3600000) / 60000);
+            let seconds = Math.floor((ms % 60000) / 1000);
+            let centiseconds = Math.floor((ms % 1000) / 10);
+            
+            const base = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            const msStr = `.${String(centiseconds).padStart(2, '0')}`;
+            return { base, msStr };
+        }
+
+        function updateSwDisplay(ms) {
+            const t = formatTimeStrings(ms);
+            if(activePrecision === 'centiseconds') {
+                swDisplay.innerHTML = `${t.base}<span class="ms">${t.msStr}</span>`;
+            } else {
+                swDisplay.innerHTML = t.base;
+            }
+        }
+
+        startBtn.addEventListener('click', () => {
+            swStartTime = Date.now() - swElapsedTime;
+            let lastTick = Date.now();
+            
+            swInterval = setInterval(() => {
+                const now = Date.now();
+                const delta = now - lastTick;
+                lastTick = now;
+
+                swElapsedTime = now - swStartTime;
+                swSessionAccumulator += delta;
+                stats.swMs += delta;
+                
+                updateSwDisplay(swElapsedTime);
+            }, 35);
+
+            swStatus.textContent = "Running";
+            swStatus.className = "status-badge running";
+            stats.cycles++;
+            commitStats();
+
+            startBtn.disabled = true; pauseBtn.disabled = false; lapBtn.disabled = false;
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            clearInterval(swInterval);
+            swInterval = null;
+            swStatus.textContent = "Paused";
+            swStatus.className = "status-badge paused";
+            startBtn.disabled = false; pauseBtn.disabled = true; lapBtn.disabled = true;
+            commitStats();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            clearInterval(swInterval);
+            swInterval = null;
+            if (swSessionAccumulator > 0) {
+                appendLogRecord('Stopwatch Run', swSessionAccumulator);
+            }
+            
+            swElapsedTime = 0; lastLapTime = 0; swCount = 0; swSessionAccumulator = 0;
+            updateSwDisplay(0);
+            lapTableBody.innerHTML = "";
+            lapModule.style.display = "none";
+            swStatus.textContent = "Ready";
+            swStatus.className = "status-badge";
+            
+            startBtn.disabled = false; pauseBtn.disabled = true; lapBtn.disabled = true;
+        });
+
+        lapBtn.addEventListener('click', () => {
+            swCount++;
+            stats.laps++;
+            if (swCount === 1) lapModule.style.display = "block";
+            
+            const lapCurrent = swElapsedTime - lastLapTime;
+            lastLapTime = swElapsedTime;
+            
+            const split = formatTimeStrings(lapCurrent);
+            const total = formatTimeStrings(swElapsedTime);
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="width: 20%;">#${String(swCount).padStart(2, '0')}</td>
+                <td style="width: 40%;" class="row-split">${split.base}${split.msStr}</td>
+                <td style="width: 40%; text-align: right;">${total.base}${total.msStr}</td>
+            `;
+            lapTableBody.insertBefore(row, lapTableBody.firstChild);
+            commitStats();
+        });
+
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerStatus = document.getElementById('timerStatus');
+        const timerStartBtn = document.getElementById('timerStartBtn');
+        const timerPauseBtn = document.getElementById('timerPauseBtn');
+        const timerResetBtn = document.getElementById('timerResetBtn');
+        const timerInputContainer = document.getElementById('timerInputContainer');
+        const timerDisplayContainer = document.getElementById('timerDisplayContainer');
+
+        let timerRemainingTime = 0, timerSessionTotal = 0, timerInitialWindow = 0;
+        let timerInterval = null;
+
+        function formatTimerString(totalSeconds) {
+            let hrs = Math.floor(totalSeconds / 3600);
+            let mins = Math.floor((totalSeconds % 3600) / 60);
+            let secs = totalSeconds % 60;
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        timerStartBtn.addEventListener('click', () => {
+            if (!timerInterval && timerRemainingTime === 0) {
+                const h = parseInt(document.getElementById('inputHours').value) || 0;
+                const m = parseInt(document.getElementById('inputMinutes').value) || 0;
+                const s = parseInt(document.getElementById('inputSeconds').value) || 0;
+                
+                timerRemainingTime = (h * 3600) + (m * 60) + s;
+                timerInitialWindow = timerRemainingTime;
+                if (timerRemainingTime <= 0) return alert("Set a countdown duration.");
+            }
+
+            timerInputContainer.style.display = "none";
+            timerDisplayContainer.style.display = "flex";
+            timerDisplay.textContent = formatTimerString(timerRemainingTime);
+
+            stats.cycles++;
+            commitStats();
+
+            timerInterval = setInterval(() => {
+                timerRemainingTime--;
+                timerSessionTotal++;
+                stats.timerMs += 1000;
+                
+                timerDisplay.textContent = formatTimerString(timerRemainingTime);
+                
+                if(timerSessionTotal % 5 === 0) commitStats();
+
+                if (timerRemainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    appendLogRecord('Timer Done', timerInitialWindow * 1000);
+                    alert("Countdown Complete!");
+                    resetTimerUI();
+                }
+            }, 1000);
+
+            timerStatus.textContent = "Counting";
+            timerStatus.className = "status-badge running";
+            timerStartBtn.disabled = true; timerPauseBtn.disabled = false;
+        });
+
+        timerPauseBtn.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerStatus.textContent = "Paused";
+            timerStatus.className = "status-badge paused";
+            timerStartBtn.disabled = false; timerPauseBtn.disabled = true;
+            commitStats();
+        });
+
+        function resetTimerUI() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            if(timerRemainingTime > 0 && timerRemainingTime !== timerInitialWindow) {
+                appendLogRecord('Partial Timer', timerSessionTotal * 1000);
+            }
+            timerRemainingTime = 0; timerSessionTotal = 0;
+            timerInputContainer.style.display = "flex";
+            timerDisplayContainer.style.display = "none";
+            timerStatus.textContent = "Set Time";
+            timerStatus.className = "status-badge";
+            timerStartBtn.disabled = false; timerPauseBtn.disabled = true;
+            commitStats();
+        }
+
+        timerResetBtn.addEventListener('click', resetTimerUI);
+
+        // Render initially
+        renderStatsUI();
+    </script>
+</body>
+</html>
